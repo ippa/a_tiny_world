@@ -3,15 +3,18 @@ A Tiny World (28 Juni 2009)
 ============================
 By: ippa@rubylicio.us / ippa @ #freenode
 Entry for RubyWeeknd #3 [http://rubygame.org/forums/viewtopic.php?f=8&t=38]
-Win32 Download: http://ippa.se/a_tiny_world.exe
-OSX Download: http://ippa.se/a_tiny_world_intel_mac.zip
 
+Packaged bundles
+================
+Windows: http://ippa.se/a_tiny_world.exe
+OSX: http://ippa.se/a_tiny_world_intel_mac.zip
+Linux: Download source, install gosu and compile chipmunk edge!
 
 
 Game
 ====
 Crush the minis and their world! 
-Bonus for fancy kicks. Don't get bitten in the legs!
+Bonus for kicking minis to death while in the air. Don't get bitten in the legs!
 Move legs with Arrows. Kick with Space.
 
 
