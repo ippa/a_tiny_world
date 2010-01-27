@@ -8,11 +8,11 @@ class Player
 		@x = options[:x] || 0.0
 		@y = options[:y] || $screen.height
 		@mass = options[:mass] || 0	
-    @inertia = options[:inertia] || Float::INFINITY # Inertia is the resistance an object has to a change in its state of motion.)
+    @inertia = options[:inertia] || Float::INFINITY rescue 9999999999999.9 # Inertia is the resistance an object has to a change in its state of motion.)
     
     @body = CP::Body.new(@mass , @inertia)
-    @body.pos = vec2(@x, @y)
-    @body.angle = 0    
+    @body.p = vec2(@x, @y)
+    @body.a = 0    
   
     options[:owner] = self
     @leg1 = Leg.new(options)
@@ -24,14 +24,14 @@ class Player
     @max_space_between_legs = 250
 	end
 
-  def x; @body.pos.x; end
-	def y; @body.pos.y; end
-  def space_between_legs; @leg2.body.pos.x - @leg1.body.pos.x; end
+  def x; @body.p.x; end
+	def y; @body.p.y; end
+  def space_between_legs; @leg2.body.p.x - @leg1.body.p.x; end
   def dead?; @health <= 0; end
   
   def reset_legs
-    @leg1.body.pos = vec2(100,$screen.height)
-    @leg2.body.pos = vec2(230,$screen.height)
+    @leg1.body.p = vec2(100,$screen.height)
+    @leg2.body.p = vec2(230,$screen.height)
   end
   
   def reset_graphics
@@ -58,13 +58,13 @@ class Player
   
   def update(ticks)    
     [@leg1, @leg2].each do |leg|
-      leg.body.vel.y = 0 if leg.body.pos.y < 50
-      leg.body.vel.x = 0 if leg.body.pos.x < 1
+      leg.body.v.y = 0 if leg.body.p.y < 50
+      leg.body.v.x = 0 if leg.body.p.x < 1
     end
 
     if space_between_legs >= @max_space_between_legs
-      leg2.body.vel.x = 0  if leg2.body.vel.x > 0
-      leg1.body.vel.x = 0  if leg2.body.vel.x < 0
+      leg2.body.v.x = 0  if leg2.body.v.x > 0
+      leg1.body.v.x = 0  if leg2.body.v.x < 0
       #@status = :default
     end
 
@@ -125,14 +125,14 @@ class Leg < ChipmunkObject
   end
   
 
-  def left;   @body.vel.x = -20; end
-  def right;  @body.vel.x = 20;  end
-  def up;     @body.vel.y = -20; end
-  def kick;   @body.vel.x = 200; end
-  #def down;   @body.vel.y = +20; end
+  def left;   @body.v.x = -20; end
+  def right;  @body.v.x = 20;  end
+  def up;     @body.v.y = -20; end
+  def kick;   @body.v.x = 200; end
+  #def down;   @body.v.y = +20; end
   
   def draw(x,y)
-    @image.draw_rot(x,y-@image.height,10,@body.angle.radians_to_gosu, 0, 0, $zoom,$zoom)
+    @image.draw_rot(x,y-@image.height,10,@body.a.radians_to_gosu, 0, 0, $zoom,$zoom)
   end
 end
   
@@ -182,7 +182,7 @@ class Mini < ChipmunkObject
       
     if alive?
       @shapes.first.surface_v = vec2(@speed, 0) if @direction == :left
-      #@body.vel.x = -@speed if @direction == :left
+      #@body.v.x = -@speed if @direction == :left
     end
       
     return alive?
@@ -190,12 +190,12 @@ class Mini < ChipmunkObject
   
 	def left!
     @direction = :left
-    @body.vel.x = -@speed
+    @body.v.x = -@speed
   end
   
   def right!
     if @status == :jumping
-      @body.apply_impulse(vec2(100,0), vec2(0.0, 0.0)) if @body.vel.x.abs < 40
+      @body.apply_impulse(vec2(100,0), vec2(0.0, 0.0)) if @body.v.x.abs < 40
     else
       @shape.surface_v = vec2(-@speed, 0)
       @status = :moving_right
@@ -244,7 +244,7 @@ class Mini < ChipmunkObject
       @status = :on_ground
       use_tiles(@player_running)
       @ticks_per_image = 3
-      #puts "Landed!"; p @body.vel
+      #puts "Landed!"; p @body.v
     end
   end
   
@@ -259,7 +259,7 @@ class Mini < ChipmunkObject
     if alive? && !dying?
       use_tiles(@player_crushed)
       @ticks_per_image = 1
-      #puts "Crushed Mini: #{@status.to_s}"; p @body.vel
+      #puts "Crushed Mini: #{@status.to_s}"; p @body.v
       remove_shapes_from_space(@space)
       @status = :dying
       Sample['43589__Donalfonso__Squash.wav'].play(0.6,1 + rand(20)/10.0)
@@ -270,7 +270,7 @@ class Mini < ChipmunkObject
     if alive? && !dying?
       use_tiles(@player_jumping)
       @body.moment = 0  ## Can rotate!
-      #puts "Slammed Mini: #{@status.to_s}"; p @body.vel
+      #puts "Slammed Mini: #{@status.to_s}"; p @body.v
       remove_shapes_from_space(@space)
       @status = :dying
       Sample['8838__Churd_Tzu__water_bottle_snare_15_bonk_.wav'].play(0.5,1 + rand(10)/10.0)
@@ -321,8 +321,8 @@ class Ground < ChipmunkObject
     add_shapes_to_space(@space, {:static => true})
 	end
 
-	def x; @body.pos.x; end
-	def y; @body.pos.y; end
+	def x; @body.p.x; end
+	def y; @body.p.y; end
 end
 
 

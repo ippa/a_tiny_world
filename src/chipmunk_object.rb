@@ -8,12 +8,12 @@ class ChipmunkObject
 		@x = options[:x] || 0.0
 		@y = options[:y] || 0.0
 		@mass = options[:mass] || Float::MAX
-    @inertia = options[:inertia] || Float::INFINITY
+    @inertia = options[:inertia] || Float::INFINITY rescue 999999999999.9
     @space = options[:space] || $SPACE || nil
     
     @body = CP::Body.new(@mass , @inertia)
-    @body.pos = vec2(@x, @y)
-    @body.angle = 0
+    @body.p = vec2(@x, @y)
+    @body.a = 0
     @shapes = Array.new
   end
   
@@ -41,8 +41,8 @@ class ChipmunkObject
     end
   end
 
-  def x; @body.pos.x; end
-	def y; @body.pos.y; end
+  def x; @body.p.x; end
+	def y; @body.p.y; end
 
   def left; @body.apply_impulse(vec2(-200,0), vec2(0.0, 0.0)); end
   def right;@body.apply_impulse(vec2(200,0), vec2(0.0, 0.0)); end
@@ -50,8 +50,8 @@ class ChipmunkObject
   def down; @body.apply_impulse(vec2(0,200), vec2(0.0, 0.0)); end
   
 	def draw(x=nil, y=nil)
-    x = @body.pos.x if x==nil
-    y = @body.pos.y if y==nil    		
+    x = @body.p.x if x==nil
+    y = @body.p.y if y==nil    		
     @image.draw_rot(x,y-@image.height,10,0, 0, 0, $zoom, $zoom)
 		self
 	end	   
